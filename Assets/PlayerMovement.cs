@@ -61,21 +61,21 @@ public class PlayerMovement : MonoBehaviour
         if(isGrounded && jumpInput){
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
             jumpInput = false; // Reset jump input
-            isHoldingJump = true;
+            Debug.Log("Frist jump");
             hasJumped = true;
         }
         else if(jumpInput && !hasDoubleJumped){ //this is for double jump
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z); // We reset vertical velocity so its an actual double jump and doesnt stack when spammed, or cancel out when falling
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
             jumpInput = false;
+            Debug.Log("Double Jump");
             hasDoubleJumped = true;
-            isHoldingJump = true;
             hasJumped = true;
         }
     }
     private void variableJumpHeight(){
         if(!isHoldingJump && rb.linearVelocity.y > 0 && hasJumped){ 
-            //If user stops holding jump we apply a strong downward force so we get variable jumping
+            //If user stops holding jump we cut their y velocity to slow them down quickly
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y * minJumpMultiplier, rb.linearVelocity.z);
         }
     }
@@ -94,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = true;
             hasDoubleJumped = false;
             hasJumped = false;
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0 , rb.linearVelocity.z);
         }
     }
 
@@ -109,6 +110,7 @@ public class PlayerMovement : MonoBehaviour
     public void Jump(InputAction.CallbackContext context){
         if(context.performed && (isGrounded || !hasDoubleJumped)){ //checks if user hit spacebar
             jumpInput = true;
+            isHoldingJump = true;
         }else if(context.canceled){
             //This is for when user stops holding spacebar
             isHoldingJump = false;
