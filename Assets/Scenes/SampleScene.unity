@@ -1023,6 +1023,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   jumpSpeed: 8
+  downGravityMultiplier: 4
   freeLookCamera: {fileID: 1525037403}
 --- !u!4 &1212856090 stripped
 Transform:

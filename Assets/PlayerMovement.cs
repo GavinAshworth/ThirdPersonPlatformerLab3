@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpSpeed = 5f;
+    [SerializeField] private float downGravityMultiplier = 2.5f; 
     [SerializeField] private CinemachineCamera freeLookCamera;
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -24,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
         updateMovement();
         updateRotation();
         jump();
+        increaseDownGravity();
     }
 
      private void updateMovement()
@@ -61,6 +63,14 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
             jumpInput = false;
             hasDoubleJumped = true;
+        }
+    }
+
+    private void increaseDownGravity(){
+        //This is how we amp up down gravity so jumps feel less floaty
+        if (rb.linearVelocity.y < 0)
+        {
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (downGravityMultiplier - 1) * Time.deltaTime;
         }
     }
 
