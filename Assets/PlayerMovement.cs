@@ -56,12 +56,19 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
             jumpInput = false; // Reset jump input
         }
+        else if(jumpInput && !hasDoubleJumped){ //this is for double jump
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z); // We reset vertical velocity so its an actual double jump and doesnt stack when spammed, or cancel out when falling
+            rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+            jumpInput = false;
+            hasDoubleJumped = true;
+        }
     }
 
     private void OnCollisionEnter(Collision collision){
         //Checks if player is on the ground
         if(collision.gameObject.layer == LayerMask.NameToLayer("Ground")){
             isGrounded = true;
+            hasDoubleJumped = false;
         }
     }
 
@@ -75,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
         moveInput = context.ReadValue<Vector2>(); //Checks if player pressed wasd or arrow keys
     }
     public void Jump(InputAction.CallbackContext context){
-        if(context.performed){ //checks if user hit spacebar
+        if(context.performed && (isGrounded || !hasDoubleJumped)){ //checks if user hit spacebar
             jumpInput = true;
         } 
     }
