@@ -5,14 +5,17 @@ using Unity.Cinemachine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 10f;
-    [SerializeField] private float jumpSpeed = 5f;
-    [SerializeField] private float downGravityMultiplier = 2.5f; 
+    [SerializeField] private float jumpSpeed = 6f;
+    [SerializeField] private float downGravityMultiplier = 4f; 
+    [SerializeField] private float minJumpMultiplier = 0.75f;
     [SerializeField] private CinemachineCamera freeLookCamera;
     private Rigidbody rb;
     private Vector2 moveInput;
+    private bool isHoldingJump;
     private bool isGrounded;
     private bool hasDoubleJumped;
     private bool jumpInput;
+    private bool hasJumped;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -26,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
         updateRotation();
         jump();
         increaseDownGravity();
+        variableJumpHeight();
     }
 
      private void updateMovement()
@@ -57,12 +61,22 @@ public class PlayerMovement : MonoBehaviour
         if(isGrounded && jumpInput){
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
             jumpInput = false; // Reset jump input
+            isHoldingJump = true;
+            hasJumped = true;
         }
         else if(jumpInput && !hasDoubleJumped){ //this is for double jump
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z); // We reset vertical velocity so its an actual double jump and doesnt stack when spammed, or cancel out when falling
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
             jumpInput = false;
             hasDoubleJumped = true;
+            isHoldingJump = true;
+            hasJumped = true;
+        }
+    }
+    private void variableJumpHeight(){
+        if(!isHoldingJump && rb.linearVelocity.y > 0 && hasJumped){ 
+            //If user stops holding jump we apply a strong downward force so we get variable jumping
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y * minJumpMultiplier, rb.linearVelocity.z);
         }
     }
 
@@ -79,6 +93,7 @@ public class PlayerMovement : MonoBehaviour
         if(collision.gameObject.layer == LayerMask.NameToLayer("Ground")){
             isGrounded = true;
             hasDoubleJumped = false;
+            hasJumped = false;
         }
     }
 
@@ -94,7 +109,10 @@ public class PlayerMovement : MonoBehaviour
     public void Jump(InputAction.CallbackContext context){
         if(context.performed && (isGrounded || !hasDoubleJumped)){ //checks if user hit spacebar
             jumpInput = true;
-        } 
+        }else if(context.canceled){
+            //This is for when user stops holding spacebar
+            isHoldingJump = false;
+        }
     }
 
 }
