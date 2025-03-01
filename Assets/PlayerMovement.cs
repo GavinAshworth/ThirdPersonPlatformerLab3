@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Cinemachine;
 
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
+    [SerializeField] private CinemachineCamera freeLookCamera;
     private Rigidbody rb;
     private Vector2 moveInput;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -16,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         updateMovement();
+        updateRotation();
     }
 
     private void updateMovement(){
@@ -23,6 +26,10 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = new Vector3(moveInput.x * speed, rb.linearVelocity.y, moveInput.y * speed);
     }
 
+    private void updateRotation(){
+        transform.forward = freeLookCamera.transform.forward;
+        transform.rotation = Quaternion.Euler(0,transform.rotation.eulerAngles.y,0);
+    }
     public void Move(InputAction.CallbackContext context){
         moveInput = context.ReadValue<Vector2>();
     }
