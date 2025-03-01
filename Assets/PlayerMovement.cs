@@ -5,9 +5,13 @@ using Unity.Cinemachine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 10f;
+    [SerializeField] private float jumpSpeed = 5f;
     [SerializeField] private CinemachineCamera freeLookCamera;
     private Rigidbody rb;
     private Vector2 moveInput;
+    private bool isGrounded;
+    private bool hasDoubleJumped;
+    private bool jumpInput;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -19,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     {
         updateMovement();
         updateRotation();
+        jump();
     }
 
      private void updateMovement()
@@ -45,7 +50,34 @@ public class PlayerMovement : MonoBehaviour
         cameraForward.Normalize();
         transform.forward = cameraForward;
     }
-    public void Move(InputAction.CallbackContext context){
-        moveInput = context.ReadValue<Vector2>();
+
+    private void jump(){
+        if(isGrounded && jumpInput){
+            rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+            jumpInput = false; // Reset jump input
+        }
     }
+
+    private void OnCollisionEnter(Collision collision){
+        //Checks if player is on the ground
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Ground")){
+            isGrounded = true;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision){
+        //Checks if leaves the ground
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Ground")){
+            isGrounded = false;
+        }
+    }
+    public void Move(InputAction.CallbackContext context){
+        moveInput = context.ReadValue<Vector2>(); //Checks if player pressed wasd or arrow keys
+    }
+    public void Jump(InputAction.CallbackContext context){
+        if(context.performed){ //checks if user hit spacebar
+            jumpInput = true;
+        } 
+    }
+
 }
