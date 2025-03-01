@@ -19,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void updateMovement(){
+        //Move input is vector 2 so we change to vector 3 and sub in our current y velocity for y
         rb.linearVelocity = new Vector3(moveInput.x * speed, rb.linearVelocity.y, moveInput.y * speed);
     }
 
