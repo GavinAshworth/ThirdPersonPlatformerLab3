@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpSpeed = 6f;
     [SerializeField] private float downGravityMultiplier = 4f; 
     [SerializeField] private float minJumpMultiplier = 0.75f;
-    [SerializeField] private float dashSpeed = 20f;
+    [SerializeField] private float dashSpeed = 1f;
     [SerializeField] private CinemachineCamera freeLookCamera;
     private Rigidbody rb;
     private Vector2 moveInput;
