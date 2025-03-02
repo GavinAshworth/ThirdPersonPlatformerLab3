@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpSpeed = 6f;
     [SerializeField] private float downGravityMultiplier = 4f; 
     [SerializeField] private float minJumpMultiplier = 0.75f;
+    [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private CinemachineCamera freeLookCamera;
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -16,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private bool hasDoubleJumped;
     private bool jumpInput;
     private bool hasJumped;
+    private bool dashInput;
+    private bool isDashing;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -30,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
         jump();
         increaseDownGravity();
         variableJumpHeight();
+        doDash();
     }
 
      private void updateMovement()
@@ -79,6 +83,18 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y * minJumpMultiplier, rb.linearVelocity.z);
         }
     }
+    private void doDash(){
+        if(dashInput && !isGrounded){
+            isDashing = true;
+             // We want to dash towards the way we are facing
+            Vector3 dashDirection = freeLookCamera.transform.forward;
+            dashDirection.y = 0; // Ignore vertical component
+            dashDirection.Normalize();
+
+            // Apply dash force as an impulse 
+            rb.AddForce(dashDirection * dashSpeed, ForceMode.Impulse);
+        }
+    }
 
     private void increaseDownGravity(){
         //This is how we amp up down gravity so jumps feel less floaty
@@ -95,6 +111,10 @@ public class PlayerMovement : MonoBehaviour
             hasDoubleJumped = false;
             hasJumped = false;
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0 , rb.linearVelocity.z);
+
+            //reset dash
+            dashInput = false; // Reset dash input
+            isDashing = false;
         }
     }
 
@@ -114,6 +134,11 @@ public class PlayerMovement : MonoBehaviour
         }else if(context.canceled){
             //This is for when user stops holding spacebar
             isHoldingJump = false;
+        }
+    }
+    public void Dash(InputAction.CallbackContext context){
+        if(context.performed && !isDashing && !isGrounded){
+            dashInput = true;
         }
     }
 
